@@ -17,10 +17,9 @@ tags = db.Table('tags',
 	db.Column('favor_id', db.Integer, db.ForeignKey('favor.id'))
 )
 
-
 class TagSchema(Schema):
 	id = fields.Integer()
-
+	name = fields.String()
 
 class FavorSchema(Schema):
 	id = fields.Integer()
@@ -32,10 +31,10 @@ class FavorSchema(Schema):
 	completed = fields.Boolean()
 	lat = fields.Float()
 	lon = fields.Float()
-	responding_val = fields.Integer()
+	responding_fav = fields.Integer()
 	picture = fields.String()
 	category = fields.String()
-
+	title = fields.String()
 
 class Favor(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -48,16 +47,17 @@ class Favor(db.Model):
 	completed = db.Column(db.Boolean)
 	lat = db.Column(db.Float)
 	lon = db.Column(db.Float)
+	title = db.Column(db.String(255))
 	responding_fav = db.Column(db.Integer)
 	picture = db.Column(db.String(2048))
 	category = db.Column(db.String(128))
 
-	def __init__(self,cid,rid,category,description,lat,lon,respfid,picture):
+	def __init__(self,cid,rid,title,description,lat,lon,respfid,picture):
 		self.completed = 0
 		self.active = 0
 		self.creator_id = cid
 		self.responder_id = rid
-		self.category = category
+		self.title = title
 		self.description = description
 		self.lat = lat
 		self.lon = lon
@@ -72,7 +72,6 @@ class UserSchema(Schema):
     display_first = fields.String()
     display_last = fields.String()
     profile_picture = fields.String()
-
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -89,10 +88,20 @@ class User(db.Model):
 
 class Tag(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(255), unique=True)
 
+	def __init__(self,tag):
+		self.name = tag
 
 if __name__ == '__main__':
-	# pprint(db.create_all())
-	u = User(123, 'isaac', 'gonzalez', 'https://asdf.com')
-	user_schema = UserSchema(many=True)
-	pprint(user_schema.dump(User.query.all()).data)
+	from random import randint as random
+	#pprint(db.create_all())
+	#u = User(random(1,100), 'isaac', 'gonzalez', 'https://asdf.com')
+	#db.session.add(u)
+	#db.session.commit()
+	#a = Favor(random(1,200),random(1,200),'a,b,c,d,e,d','the quick brown fox jumped over the lazy dog',113.111231,37.1112,random(1,200),'http://google.om')
+	#a.tags.append(Tag('Sex'))
+	#a.tags.append(Tag('Drugs'))
+	#a.tags.append(Tag('Rock'))
+	#db.session.add(a)
+	#db.session.commit()
