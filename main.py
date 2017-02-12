@@ -71,7 +71,9 @@ def do_search_tags(tag_set):
 		res2 = q.filter(Favor.tags.any(Tag.name == tag))
 		for d in res2:
 			print res2.__dict__
-
+		# this doesn't work!!! in fact, i'm annoyed because tags... but you sould be able to do 
+	 #       favor_schema = FavorSchema(many=True)
+       	#  return json.loads(favor_schema.dump(Favor.query.all(id=data['cid'])).data)
 		#res = [list(filter(lambda x: x in res, sublist)) for sublist in res2]
 
 	return json.loads(favor_schema.dump(res).data)
@@ -99,17 +101,21 @@ def process_favor(pe):
 		if type == "info":
 			# get the data
 			# unfun, because we have to use deseralization to get it to json...
+			favor_schema = FavorSchema(many=True)
+        		return json.loads(favor_schema.dump(Favor.query.all(id=data['cid'])).data)
 		elif type == "add":
 			# insert
 			f = Favor(data['cid'],data['rid'],data['title'],data['desc'],data['lat'],data['lon'],data['responder_id'],data['picture'])
 			db.session.add(f)
 			db.session.commit()
+			return json.dumps({'type': 'favor', 'success': 1})
 		elif type == "complete":
 			# edit
 			cu = User.query.filter_by(id=int(data['cid'])).first()
 			cu.active = 0
 			cu.completed = 1
 			db.session.commit()
+			return json.dumps({'type': 'favor', 'success': 1})
 `		elif type == "select":
 			# from the perspective of the selecting user, they pick a favor created by someone else. 
 			# they then are put as responderid waiting for it to become active
@@ -119,6 +125,7 @@ def process_favor(pe):
 			cu.responder_id = data['rid']
 			ru.responder_id = data['cid']
 			db.session.commmit()
+			return json.dumps({'type': 'favor', 'success': 1})
 		elif type == "accept"
 			# like above, but this time we set the activeness on both
 			# but to make this work better without hard coding a swap of users upon pick (which is very bad)
@@ -128,6 +135,7 @@ def process_favor(pe):
 			cu.active = 1
 			ru.active = 1
 			db.session.commit()
+			return json.dumps({'type': 'favor', 'success': 1})
 		elif type == "decline":
 			# edit the other and mark as active....
 			cu = User.query.filter_by(id=int(data['cid'])).first()
@@ -136,8 +144,9 @@ def process_favor(pe):
 			ru.responder_id = 0
 			cu.active = 0
 			db.session.commit()
+			return json.dumps({'type': 'favor', 'success': 1})
 		else:
-			return "fail"
+			return json.dumps({'type': 'favor', 'success': 0})
 @app.route("/")
 def root():
 	return "<p>Nothing to see here...</p>"
