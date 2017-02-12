@@ -1,6 +1,10 @@
 import flask
+from flask import Response
 from flask_sqlalchemy import SQLAlchemy
 from pprint import pprint
+from json import JSONEncoder
+import json
+from marshmallow import Schema, fields
 
 app = flask.Flask(__name__)
 app.config['SQL_DATABASE_URI'] = 'mysql://root:134890f20194j2309cj@localhost/favors'
@@ -12,6 +16,26 @@ tags = db.Table('tags',
 	db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
 	db.Column('favor_id', db.Integer, db.ForeignKey('favor.id'))
 )
+
+
+class TagSchema(Schema):
+	id = fields.Integer()
+
+
+class FavorSchema(Schema):
+	id = fields.Integer()
+	creator_id = fields.Integer()
+	responder_id = fields.Integer()
+	tags = fields.Nested(TagSchema)
+	description = fields.String()
+	active = fields.Boolean()
+	completed = fields.Boolean()
+	lat = fields.Float()
+	lon = fields.Float()
+	responding_val = fields.Integer()
+	picture = fields.String()
+	category = fields.String()
+
 
 class Favor(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -40,19 +64,35 @@ class Favor(db.Model):
 		self.responding_fav = respfid
 		self.picture = picture
 
+
+
+class UserSchema(Schema):
+    id = fields.Integer()
+    uid = fields.Integer()
+    display_first = fields.String()
+    display_last = fields.String()
+    profile_picture = fields.String()
+
+
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	display_first = db.Column(db.Unicode(100))
-	display_last = db.Column(db.Unicode(100))
+	uid = db.Column(db.Integer())
+	display_first = db.Column(db.String(100))
+	display_last = db.Column(db.String(100))
 	profile_picture = db.Column(db.String(2048))
 
-	def __init__(fname,lname,pp):
-		self.display_First = fname
+	def __init__(self, uid, fname,lname,pp):
+		self.display_first = fname
 		self.display_last = lname
 		self.profile_picture = pp
+		self.uid = uid
 
 class Tag(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 
+
 if __name__ == '__main__':
-	pprint(db.create_all())
+	# pprint(db.create_all())
+	u = User(123, 'isaac', 'gonzalez', 'https://asdf.com')
+	user_schema = UserSchema(many=True)
+	pprint(user_schema.dump(User.query.all()).data)
