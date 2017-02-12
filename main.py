@@ -116,7 +116,7 @@ def process_favor(pe):
 			cu.completed = 1
 			db.session.commit()
 			return json.dumps({'type': 'favor', 'success': 1})
-`		elif type == "select":
+		elif type == "select":
 			# from the perspective of the selecting user, they pick a favor created by someone else. 
 			# they then are put as responderid waiting for it to become active
 			# if I had more time, I'd rewrite this stuff in a queue
@@ -126,7 +126,7 @@ def process_favor(pe):
 			ru.responder_id = data['cid']
 			db.session.commmit()
 			return json.dumps({'type': 'favor', 'success': 1})
-		elif type == "accept"
+		elif type == "accept":
 			# like above, but this time we set the activeness on both
 			# but to make this work better without hard coding a swap of users upon pick (which is very bad)
 			# we should separate these calls out more, so an accept can be requested by a single user, and the other user can accept someone else. but has to accept someone to be active.
